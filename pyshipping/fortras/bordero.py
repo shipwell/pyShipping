@@ -378,26 +378,26 @@ class Bordero(object):
         self.verladung = None
         self.generated_output = ''
         # definitions of records
-        self.satzarten = {'A': (u'%(borderonr)018d%(datum)-8s%(versandweg)s  %(empfangspartner)-10s %(frachtfuehrer)'
+        self.satzarten = {'A': ('%(borderonr)018d%(datum)-8s%(versandweg)s  %(empfangspartner)-10s %(frachtfuehrer)'
                                 + '-13s%(plz)-9s%(ort)-12s%(foo)-49s6'),
-                          'B': u'%(name1)-35s%(name2)-35s%(strasse)-35s%(lkz)-3s%(plz)-9s       ',
-                          'C': u'%(ort)-35s%(foo)-3s%(foo)9s%(foo)35s%(kdnnr)17s%(wert)09fEUR%(foo)-13s',
-                          'D': u'%(name1)-35s%(name2)-35s%(foo)-35s%(foo)-19s',
-                          'E': (u'%(strasse)-35s%(lkz)-3s%(plz)-9s%(ort)-35s%(foo)3s%(matchcode)-10s'
+                          'B': '%(name1)-35s%(name2)-35s%(strasse)-35s%(lkz)-3s%(plz)-9s       ',
+                          'C': '%(ort)-35s%(foo)-3s%(foo)9s%(foo)35s%(kdnnr)17s%(wert)09fEUR%(foo)-13s',
+                          'D': '%(name1)-35s%(name2)-35s%(foo)-35s%(foo)-19s',
+                          'E': ('%(strasse)-35s%(lkz)-3s%(plz)-9s%(ort)-35s%(foo)3s%(matchcode)-10s'
                                 + '%(kdnnr)17s%(foo)10s%(foo)2s'),
-                          'F': (u'%(anzahlpackstuecke)04d%(verpackungsart)2s0000  %(wareninhalt)-20s'
+                          'F': ('%(anzahlpackstuecke)04d%(verpackungsart)2s0000  %(wareninhalt)-20s'
                                 + '%(zeichennr)-20s%(sendungskilo)05d00000%(foo)-62s'),
                           'H': '002%(barcode)-35s%(foo)35s%(foo)35s%(foo)16s',
-                          'I': (u'%(sendungsnummer)-16s%(sendungskilo)05d0000000000%(ladedm)03d    '
+                          'I': ('%(sendungsnummer)-16s%(sendungskilo)05d0000000000%(ladedm)03d    '
                                 + '%(frankatur)-2s%(frankatur)-2s  %(foo)30s  %(foo)30s%(foo)16s  '),
-                          'L': (u'%(sendungen)05d%(packstuecke)05d%(bruttogewicht)05d'
+                          'L': ('%(sendungen)05d%(packstuecke)05d%(bruttogewicht)05d'
                                 + '%(kostensteuerplichtig)09d%(kostensteuerfrei)09d000000000%(kostenzoll)09d'
                                 + '%(eust)09d000%(gitterboxen)03d%(europaletten)03d000000000000'
                                 + '%(sonstigeladehilfsmittel)03d000N%(foo)36s'),
-                          'T': (u'%(textschluessel1)02s%(hinweistext1)-30s'
+                          'T': ('%(textschluessel1)02s%(hinweistext1)-30s'
                                 + '%(textschluessel2)02s%(hinweistext2)-30s'
                                 + '%(textschluessel3)02s%(hinweistext3)-30s%(foo)28s'),
-                          'J': u'%(zusatztext1)-62s%(zusatztext2)-62s',
+                          'J': '%(zusatztext1)-62s%(zusatztext2)-62s',
                           }
 
     def add_lieferung(self, lieferung):
@@ -408,10 +408,7 @@ class Bordero(object):
 
     def generate_satz(self, satzart, data):
         """Helper function to generate output for a Record."""
-        for key in data.keys():
-            if isinstance(data[key], str):
-                data[key] = unicode(data[key], 'ascii', errors='ignore')
-        ret = ((u'%s%03d' % (satzart, self.satznummer)) +
+        ret = (('%s%03d' % (satzart, self.satznummer)) +
                (self.satzarten[satzart] % data))
         if len(ret) != 128:
             raise RuntimeError('bordero Satz %r kaputt! (len=%r) %r %r' % (satzart, len(ret), ret, data))
@@ -438,7 +435,7 @@ class Bordero(object):
 
     def generate_versendersatz_b(self, lieferung):
         """Generates bodero record B - first half of sender."""
-        data = {'name1': 'HUDORA GmbH', 'name2': '', 'strasse': u'Jägerwald 13', 'lkz': 'DE',
+        data = {'name1': 'HUDORA GmbH', 'name2': '', 'strasse': 'Jägerwald 13', 'lkz': 'DE',
                 'plz': '42897'}
         return self.generate_satz('B', data)
 
@@ -548,9 +545,9 @@ class Bordero(object):
 
     def generate_zusatztextsatz_j(self, lieferung):
         """Generates bodero record J - additional text info."""
-        data = {'zusatztext1': _clip(62, u'AuftragsNr: %s / KundenNr: %s' %
+        data = {'zusatztext1': _clip(62, 'AuftragsNr: %s / KundenNr: %s' %
                                          (lieferung.auftragsnummer, lieferung.kundennummer)),
-                'zusatztext2': _clip(62, u'huLOG Code: %s' % lieferung.code),
+                'zusatztext2': _clip(62, 'huLOG Code: %s' % lieferung.code),
                 'foo': ' '}
         return self.generate_satz('J', data)
 
@@ -590,7 +587,7 @@ class Bordero(object):
         out.append(self.generate_sendungsinfosatz_i(lieferung))
         out.append(self.generate_textsaetze(lieferung))
         out.append(self.generate_zusatztextsatz_j(lieferung))
-        return u'\n'.join(out)
+        return '\n'.join(out)
 
     def generate_dataexport(self):
         """Return complete BODERO data."""
@@ -600,8 +597,8 @@ class Bordero(object):
             for lieferung in self.lieferungen:
                 out.append(self.generate_lieferungssaetze(lieferung))
             out.append(self.generate_summensatz_l())
-            self.generated_output = (u"@@PHBORD128 0128003500107 HUDORA1 MAEULER\n"
-                                     + u'\n'.join(out) + u'\n@@PT\n')
+            self.generated_output = ("@@PHBORD128 0128003500107 HUDORA1 MAEULER\n"
+                                     + '\n'.join(out) + '\n@@PT\n')
         return self.generated_output
 
 

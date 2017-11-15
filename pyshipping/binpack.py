@@ -7,8 +7,10 @@ Created by Maximillian Dornseif on 2010-08-16.
 Copyright (c) 2010 HUDORA. All rights reserved.
 """
 
-
-import binpack_simple
+if __name__ == '__main__':
+    import binpack_simple
+else:
+    from . import binpack_simple
 
 
 def binpack(packages, bin=None, iterlimit=5000):
@@ -17,7 +19,10 @@ def binpack(packages, bin=None, iterlimit=5000):
 
 def test(func):
     import time
-    from package import Package
+    if __name__ == '__main__':
+        from package import Package
+    else:
+        from .package import Package
     fd = open('testdata.txt')
     vorher = 0
     nachher = 0
@@ -32,16 +37,16 @@ def test(func):
             continue
         bins, rest = func(packages)
         if rest:
-            print "invalid data", rest, line
+            print("invalid data", rest, line)
         else:
             vorher += len(packages)
             nachher += len(bins)
-    print time.time() - start,
-    print vorher, nachher, float(nachher) / vorher * 100
+    print(time.time() - start, end=' ')
+    print(vorher, nachher, float(nachher) / vorher * 100)
 
 
 if __name__ == '__main__':
-    print "py",
+    print("py", end=' ')
     test(binpack)
 
 

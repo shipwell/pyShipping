@@ -8,10 +8,12 @@ Copyright HUDORA GmbH 2006, 2007, 2010
 You might consider this BSD-Licensed.
 """
 
+import functools
 import doctest
 import unittest
 
 
+@functools.total_ordering
 class Package(object):
     """Represents a package as used in cargo/shipping aplications."""
 
@@ -102,9 +104,9 @@ class Package(object):
         """
         return (self.heigth == other.heigth and self.width == other.width and self.length == other.length)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         """Enables to sort by Volume."""
-        return cmp(self.volume, other.volume)
+        return self.volume < other.volume
 
     def __mul__(self, multiplicand):
         """Package can be multiplied with an integer. This results in the Package beeing
@@ -188,7 +190,7 @@ def buendelung(kartons, maxweight=31000, maxgurtmass=3000):
             return False
 
         tmp = box_a + box_b
-        if tmp.weight > maxweight:
+        if tmp.weight is not None and tmp.weight > maxweight:
             return False
         elif tmp.gurtmass > maxgurtmass:
             return False
@@ -309,7 +311,7 @@ if __name__ == '__main__':
         factor += 1
         single = Package((750, 240, 220), 7400)
         multi = single * factor
-        if multi.weight > 31000 or multi.gurtmass > 3000:
+        if (multi.weight is not None and multi.weight > 31000) or multi.gurtmass > 3000:
             multi = single * (factor - 1)
             #print factor - 1, multi, multi.gurtmass
             break

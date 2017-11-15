@@ -10,7 +10,7 @@ Copyright (c) 2011 HUDORA GmbH. All rights reserved.
 import csv
 import datetime
 import decimal
-import StringIO
+import io
 
 
 FIELDNAME_MAPPING = {
@@ -76,8 +76,8 @@ def convert_record(record):
 def parse_fakt(data):
     """Parse BORDERO FAKT data"""
 
-    if isinstance(data, basestring):
-        data = StringIO.StringIO(data)
+    if isinstance(data, str):
+        data = io.StringIO(data)
 
     header = data.readline()
     if not header.strip() == '@@PHFAKT128 FROMAT:CSV DELIMITER:;':
